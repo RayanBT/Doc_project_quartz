@@ -4,12 +4,15 @@ title: "DevOps Lab - Groupe"
 
 # Presentation du groupe
 
-Nom du groupe: **A REMPLACER**
+Nom du groupe: GRP3_DevOps_DSIA
 
 Membres:
-- A REMPLACER (role: A REMPLACER)
-- A REMPLACER (role: A REMPLACER)
-- A REMPLACER (role: A REMPLACER)
+- BEN TANFOUS Rayan (Leader)
+- DA CRUZ PEREIRA Antoine
+- CHEN Antoine
+- MATSUMOTO Lucca
+- SOUPRAYEN Soen
+
 
 ## Objectif du site
 
