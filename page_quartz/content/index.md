@@ -30,6 +30,7 @@ L'acces au site est reserve aux adresses **@esiee.fr** et **@edu.esiee.fr** via 
 - [TD3](./labs/td3)
 - [TD4](./labs/td4)
 - [TD5](./labs/td5)
+- [TD6](./labs/td6)
 
 ## Setup
 

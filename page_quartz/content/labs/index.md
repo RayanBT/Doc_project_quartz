@@ -11,3 +11,4 @@ Liens vers nos compte-rendus et supports de cours.
 - [TD3](./td3) (compte-rendu + PDF)
 - [TD4](./td4) (support PDF)
 - [TD5](./td5) (support PDF)
+- [TD6](./td6) (compte-rendu)
