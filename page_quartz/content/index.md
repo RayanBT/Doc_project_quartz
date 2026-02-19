@@ -16,7 +16,7 @@ Membres:
 
 ## Objectif du site
 
-Ce site centralise nos compte-rendus de labs (TD1 a TD5) et nos livrables du cours DevOps.
+Ce site centralise nos compte-rendus de labs (TD1 a TD6) et nos livrables du cours DevOps.
 
 ## Acces
 
