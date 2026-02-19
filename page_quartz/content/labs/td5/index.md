@@ -1,5 +1,7 @@
 # Compte rendu TD5 - CI/CD avec GitHub Actions et OpenTofu
 
+- Support de cours: [lab5.pdf](./lab1.pdf)
+
 ## Introduction
 
 Ce TD traite de la mise en place de pipelines CI/CD avec GitHub Actions. L'objectif est de construire une infrastructure sécurisée sur AWS et d'effectuer des tests en utilisant OpenTofu et de piloter les déploiements via GitHub Actions avec OIDC.

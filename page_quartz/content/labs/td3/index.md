@@ -1,5 +1,7 @@
 # Compte rendu TD3 - Points de modification et reponses aux exercices
 
+- Support de cours: [lab3.pdf](./lab1.pdf)
+
 ## Recap des modifications a apporter aux scripts (avec raisons)
 
 ### 1) Types d'instances `t2.micro` non eligibles

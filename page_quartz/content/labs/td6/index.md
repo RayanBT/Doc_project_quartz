@@ -1,5 +1,7 @@
 # Lab 6 — Infrastructure Cloud & Microservices
 
+- Support de cours: [lab6.pdf](./lab1.pdf)
+
 ##  Objectif du Lab
 
 Ce lab avait pour objectif de mettre en place une architecture cloud :

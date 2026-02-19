@@ -1,5 +1,7 @@
 # Compte rendu TD4
 
+- Support de cours: [lab4.pdf](./lab1.pdf)
+
 > Lab 4 – Version Control, Build Systems, and Automated Testing
 
 ## Section 1 – Version Control with Git
