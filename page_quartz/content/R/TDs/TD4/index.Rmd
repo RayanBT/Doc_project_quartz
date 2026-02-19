@@ -17,7 +17,7 @@ pre { font-size: 12px;}
 </style>
 
 
-```r
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Ensure pandoc is available when knitting outside RStudio
 if (!rmarkdown::pandoc_available()) {
@@ -104,7 +104,7 @@ Pour rappel, la fonction (*AFD* ) retourne une liste avec les Scores (coordonné
 
 
 
-```r
+```{r, echo = T, warning=F, message=F}
 rm(list = ls()) # pour effacer les toutes les objets en mémoire
 library(kableExtra)
 library(ggplot2)
@@ -115,7 +115,7 @@ df <- read.table('VIN_QUALITE.txt', header = T)
 * La fonction permettant de réaliser le graphique est la suivante
 
 
-```r
+```{r, echo = T}
 #fonction graphique
 AFD_graph1 <- function(Scores, label = T, center = F)
 { 
@@ -146,7 +146,7 @@ return(gr)
 
 
 
-```r
+```{r}
 MANOVA <- function (X,Y)
 { 
   Xk <- split(X,Y)
@@ -193,7 +193,7 @@ MANOVA <- function (X,Y)
 ```
 
 
-```r
+```{r}
 AFD <- function(X,Y,SS_tot, SS_intra, SS_inter, nb_axes = 2)
 {  
   
@@ -264,7 +264,7 @@ return(list( Unorm = df_Un,
 ```
 
 
-```r
+```{r, echo = F}
 
 
 X1 = df[,1:4]
@@ -279,7 +279,7 @@ afd <- AFD(X1,Y1, res$SS_tot, res$SS_Intra, res$SS_Inter)
 Les Scores sont les suivants: 
 
 
-```r
+```{r}
 knitr::kable(head(afd$Scores, 20), digits = 3, format = 'html')
 
 ```
@@ -300,7 +300,7 @@ knitr::kable(head(afd$Scores, 20), digits = 3, format = 'html')
 
 * Nous calculons les centres de gravité de chaque groupe dans le plan factoriel. Nous pouvons, par exemple utiliser la fonction *aggregate*.  
 
-```r
+```{r}
 # centres de gravité (barycentres) par classe
 df_center <- aggregate(afd$Scores[, c("Axe_1", "Axe_2")],
                        by = list(Class = afd$Scores$Class),
@@ -314,7 +314,7 @@ df_center
 
 * La représentation des centres de gravité et des individus
 
-```r
+```{r}
 AFD_graph1(afd$Scores, label = TRUE, center = TRUE)
 
 ```
@@ -325,7 +325,7 @@ AFD_graph1(afd$Scores, label = TRUE, center = TRUE)
 
 * Nous calculons les distances euclidiennes de chaque individu aux différents centre de gravité de chaque groupe.
 
-```r
+```{r}
 Scores <- afd$Scores
 Scores$Class <- as.factor(Scores$Class)
 
@@ -359,7 +359,7 @@ head(dist_mat)
 <br>
 
 
-```r
+```{r, echo=FALSE, fig.width = 5, fig.height = 5, fig.align = 'center'}
 knitr::include_graphics('Distance.jpg')
 ```
 
@@ -370,7 +370,7 @@ knitr::include_graphics('Distance.jpg')
 Le dataframe suivant compare la classification obtenue par l'AFD et les observations (Gold Standard)
 
 
-```r
+```{r}
 Scores <- afd$Scores
 Scores$Class <- factor(Scores$Class)
 
@@ -404,7 +404,7 @@ df_compare <- data.frame(
 
 ```
 
-```r
+```{r}
 df_compare %>% kbl() %>% kable_styling(full_width = FALSE) %>% scroll_box(height = "250px")
 
 
@@ -414,7 +414,7 @@ df_compare %>% kbl() %>% kable_styling(full_width = FALSE) %>% scroll_box(height
 
 * Nous pouvons maintenant réaliser la matrice des confusions en utilisant la fonction *confusionMatrix* du package *caret*
 
-```r
+```{r, message =FALSE}
 # install.packages("caret")  # si besoin
 library(caret)
 
@@ -443,7 +443,7 @@ La fonction doit retourner :
 * la comparaison entre la classification réalisée par l'AFD et le gold standard
 * la matrice de confusion (obtenue à l'aide de la fonction caret)
 
-```r
+```{r}
 
 AFD_Classif <- function(Scores,
                         axes = c("Axe_1", "Axe_2"),
@@ -508,7 +508,7 @@ AFD_Classif <- function(Scores,
 
 * Pour déployer le code, on utilisera le fichier *iris* fournit par défaut  dans R
 
-```r
+```{r, echo = T}
 library(caret)  # si pas déjà chargé
 
 data(iris)  # dataset fourni par défaut (voir ?iris)
@@ -540,7 +540,7 @@ Les résultats sur le fichier *iris* sont les suivants
 
 * Centres de gravité
 
-```r
+```{r}
 # Centres de gravité (iris)
 out_iris$centres %>% 
   kbl(digits = 3) %>% 
@@ -555,7 +555,7 @@ out_iris$centres %>%
 * Distances 
 
 
-```r
+```{r}
 out_iris$distances %>% 
   kbl(digits = 3) %>% 
   kable_styling(bootstrap_options = "striped",
@@ -570,7 +570,7 @@ out_iris$distances %>%
 * Classification 
 
 
-```r
+```{r}
 out_iris$compare %>% 
   kbl() %>% 
   kable_styling(bootstrap_options = "striped",
@@ -582,7 +582,7 @@ out_iris$compare %>%
 
 * Confusion
 
-```r
+```{r}
 out_iris$confusion$table %>% 
   as.data.frame.matrix() %>% 
   kbl() %>% 
@@ -597,3 +597,5 @@ install.packages("rmarkdown")
 rmarkdown::find_pandoc()  # Check if pandoc is available via RStudio
 rmarkdown::pandoc_available()
 ```
+
+

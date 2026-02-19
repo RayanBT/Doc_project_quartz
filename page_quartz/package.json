@@ -13,7 +13,9 @@
   },
   "scripts": {
     "quartz": "./quartz/bootstrap-cli.mjs",
-    "docs": "npx quartz build --serve -d docs",
+    "sync:rmd": "node scripts/sync-rmd-to-md.mjs",
+    "build": "npm run sync:rmd && npx quartz build",
+    "docs": "npm run sync:rmd && npx quartz build --serve -d docs",
     "check": "tsc --noEmit && npx prettier . --check",
     "format": "npx prettier . --write",
     "test": "tsx --test",

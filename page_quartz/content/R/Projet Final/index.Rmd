@@ -12,7 +12,7 @@ output:
     df_print: paged
 ---
 
-```r
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
   message = FALSE,
@@ -75,7 +75,7 @@ Cette section explique comment les données brutes sont transformées en un jeu 
 
 Les bibliothèques sont organisées par rôle méthodologique. `data.table` et `dplyr` sont mobilisés pour la manipulation tabulaire, `stringr`, `stringi` et `quanteda` pour le traitement linguistique, `irlba` et `topicmodels` pour la réduction et l'analyse thématique, `pROC` pour l'évaluation probabiliste, puis `ggplot2` et `knitr` pour les visualisations et la restitution dans le rapport.
 
-```r
+```{r packages}
 required_packages <- c(
   "data.table", "dplyr", "stringr", "stringi", "ggplot2",
   "forcats", "scales", "knitr", "Matrix",
@@ -97,7 +97,7 @@ invisible(lapply(required_packages, library, character.only = TRUE))
 
 Le code teste plusieurs chemins candidats pour rendre le rapport robuste selon l'organisation locale du dossier.
 
-```r
+```{r locate-data}
 candidate_dirs <- c(
   "datasets/datasets/train_drcat",
   "datasets/train_drcat"
@@ -117,7 +117,7 @@ data_dir
 La fonction d'import applique une normalisation explicite : si une colonne n'existe pas dans un fichier source, elle est creee avec une valeur par defaut.  
 Ainsi, le jeu final possede une structure homogene, ce qui simplifie toutes les etapes suivantes.
 
-```r
+```{r import-data}
 read_drcat_file <- function(path) {
   dt <- data.table::fread(path, encoding = "UTF-8")
 
@@ -176,7 +176,7 @@ full_data <- if (is.null(official_data)) {
 
 Cette étape assure la cohérence minimale du jeu d'étude. Les labels sont convertis dans un format binaire exploitable, les textes vides ou non valides sont retirés, puis une variable de classe lisible (`Humain`, `IA`) est construite pour rendre les analyses et les graphiques plus interprétables.
 
-```r
+```{r clean-and-check}
 full_data[, label := suppressWarnings(as.integer(label))]
 full_data[, fold := suppressWarnings(as.integer(fold))]
 full_data[, source := ifelse(is.na(source) | source == "", "unknown", source)]
@@ -199,7 +199,7 @@ overview <- data_tbl %>%
 knitr::kable(overview)
 ```
 
-```r
+```{r preview}
 preview_tbl <- data_tbl %>%
   transmute(
     extrait_texte = substr(text, 1, 140),
@@ -220,7 +220,7 @@ L'EDA ne sert pas seulement à décrire les données ; elle oriente aussi les ch
 
 ### Distribution des classes
 
-```r
+```{r class-distribution}
 class_dist <- data_tbl %>%
   count(classe, sort = TRUE) %>%
   mutate(proportion = n / sum(n))
@@ -245,7 +245,7 @@ ggplot(class_dist, aes(x = classe, y = n, fill = classe)) +
 
 ### Distribution par source
 
-```r
+```{r source-distribution}
 source_dist <- data_tbl %>%
   count(source, classe, sort = TRUE)
 
@@ -280,7 +280,7 @@ ggplot(
 
 Pour limiter le temps de calcul sur plus de 160k essais, on calcule les indicateurs textuels sur un echantillon stratifie.
 
-```r
+```{r text-features-sample}
 set.seed(4209)
 target_n <- 80000L
 sample_fraction <- min(1, target_n / nrow(data_tbl))
@@ -320,7 +320,7 @@ knitr::kable(lexical_stats)
 
 ### Visualisation des longueurs de textes
 
-```r
+```{r words-hist}
 ggplot(eda_sample %>% filter(n_words > 0), aes(x = n_words, fill = classe)) +
   geom_histogram(bins = 70, alpha = 0.55, position = "identity") +
   scale_x_log10(labels = scales::comma) +
@@ -332,7 +332,7 @@ ggplot(eda_sample %>% filter(n_words > 0), aes(x = n_words, fill = classe)) +
   theme_minimal(base_size = 12)
 ```
 
-```r
+```{r words-boxplot}
 ggplot(eda_sample %>% filter(n_words > 0), aes(x = classe, y = n_words, fill = classe)) +
   geom_boxplot(outlier.alpha = 0.12) +
   scale_y_log10(labels = scales::comma) +
@@ -353,7 +353,7 @@ Cette section constitue le cœur méthodologique du projet, car elle transforme 
 
 Pour conserver un temps de calcul raisonnable, les caractéristiques sont extraites sur un échantillon stratifié. Cette stratégie maintient la représentativité des classes tout en rendant les calculs reproductibles et compatibles avec un environnement de projet étudiant.
 
-```r
+```{r feature-workset}
 set.seed(4209)
 max_docs_features <- 20000L
 feature_fraction <- min(1, max_docs_features / nrow(data_tbl))
@@ -378,7 +378,7 @@ knitr::kable(
 
 Les variables calculées couvrent plusieurs niveaux d'analyse complémentaires. Le premier niveau mesure la forme du texte à travers les mots, les caractères, la ponctuation et l'usage des majuscules. Le deuxième niveau quantifie la structure syntaxique à l'aide du nombre de phrases et de la variabilité de leurs longueurs. Le troisième niveau décrit la complexité lexicale via le TTR et le ratio de stopwords, puis la lisibilité est évaluée avec des indices classiques (Flesch, Flesch-Kincaid, FOG, SMOG, Coleman-Liau). Enfin, une perplexité unigramme approximée est calculée pour capter une forme d'incertitude lexicale.
 
-```r
+```{r stylometric-features}
 sentence_stats <- function(text_vector) {
   stats_list <- lapply(text_vector, function(txt) {
     sents <- stringi::stri_split_regex(
@@ -431,7 +431,7 @@ stylometric_features <- dplyr::bind_cols(stylometric_base, sent_features) %>%
   )
 ```
 
-```r
+```{r readability-perplexity}
 texts_named <- feature_data$text
 names(texts_named) <- feature_data$doc_id
 
@@ -511,7 +511,7 @@ knitr::kable(feature_summary)
 
 Cette analyse permet d'identifier les motifs lexicaux les plus differenciants entre classes.
 
-```r
+```{r ngram-distribution}
 tokens_1_2 <- quanteda::tokens_ngrams(tokens_words, n = 1:2)
 
 dfm_1_2 <- quanteda::dfm(tokens_1_2) %>%
@@ -537,7 +537,7 @@ knitr::kable(top_ngrams)
 La vectorisation TF-IDF convertit chaque document en vecteur numerique sparse.
 Le code applique ensuite une reduction du nombre de dimensions pour limiter le bruit et le cout calcul.
 
-```r
+```{r tfidf-vectorization}
 tfidf_matrix <- quanteda::dfm_tfidf(
   dfm_1_2,
   scheme_tf = "prop",
@@ -568,7 +568,7 @@ knitr::kable(tfidf_overview)
 
 Pour visualiser les themes dominants, on applique un modele de topics (LDA) sur une projection bag-of-words echantillonnee.
 
-```r
+```{r topic-visualization}
 set.seed(4209)
 topic_k <- 6L
 topic_lda_model <- NULL
@@ -644,7 +644,7 @@ if (quanteda::ndoc(topic_dfm) > topic_k && quanteda::nfeat(topic_dfm) > 100) {
 
 Le projet demande TF-IDF ou BERT. Ici, la vectorisation TF-IDF est implementee et operationnelle. Le bloc suivant montre une piste BERT, laissee en option.
 
-```r
+```{r bert-optional, eval=FALSE}
 if (!requireNamespace("text", quietly = TRUE)) {
   install.packages("text", repos = "https://cloud.r-project.org")
 }
@@ -661,7 +661,7 @@ dim(bert_embeddings)
 
 ## Sauvegarde des artefacts
 
-```r
+```{r save-features}
 dir.create("artifacts", showWarnings = FALSE)
 
 feature_metadata <- feature_data %>%
@@ -703,7 +703,7 @@ Dans l'esprit du cours, cette étape s'interprète aussi comme un compromis entr
 
 L'AFD linéaire est sensible quand le nombre de variables est très élevé. On projette donc d'abord la partie TF-IDF sur des composantes SVD (LSA), puis on combine avec les variables stylométriques.
 
-```r
+```{r afd-prepare}
 tfidf_sparse <- methods::as(tfidf_matrix, "dgCMatrix")
 
 svd_rank <- min(120L, nrow(tfidf_sparse) - 1L, ncol(tfidf_sparse) - 1L)
@@ -765,7 +765,7 @@ knitr::kable(
 
 ## AFD linéaire (LDA)
 
-```r
+```{r afd-lda-fit}
 afd_lda <- MASS::lda(
   x = as.matrix(afd_ready %>% select(-doc_id, -classe, -label)),
   grouping = afd_ready$classe,
@@ -809,7 +809,7 @@ knitr::kable(afd_metrics)
 
 Pour deux classes (Humain vs IA), l'AFD linéaire produit un seul axe discriminant (`LD1`).
 
-```r
+```{r afd-visual}
 ggplot(afd_projection, aes(x = LD1, fill = classe, color = classe)) +
   geom_density(alpha = 0.22) +
   labs(
@@ -820,7 +820,7 @@ ggplot(afd_projection, aes(x = LD1, fill = classe, color = classe)) +
   theme_minimal(base_size = 12)
 ```
 
-```r
+```{r afd-loadings}
 ld1_loadings <- tibble::tibble(
   variable = rownames(afd_lda$scaling),
   poids = as.numeric(afd_lda$scaling[, 1])
@@ -837,7 +837,7 @@ knitr::kable(ld1_loadings)
 
 Si la frontière entre classes n'est pas linéaire, on peut utiliser une projection noyau (RBF) puis refaire une AFD linéaire dans cet espace.
 
-```r
+```{r afd-kernel-optional}
 kernel_summary <- NULL
 
 if (requireNamespace("kernlab", quietly = TRUE)) {
@@ -878,7 +878,7 @@ if (requireNamespace("kernlab", quietly = TRUE)) {
 
 ## Sauvegarde des artefacts AFD
 
-```r
+```{r afd-save}
 saveRDS(afd_lda, "artifacts/afd_lda_model.rds")
 saveRDS(afd_projection, "artifacts/afd_projection_lda.rds")
 saveRDS(tfidf_svd, "artifacts/tfidf_svd_model.rds")
@@ -893,7 +893,7 @@ Le principe suit directement la règle de Bayes : pour une classe \(C_k\) et un 
 
 On utilise les axes discriminants `LD*` issus de l'AFD comme espace réduit pour le classifieur bayésien.
 
-```r
+```{r bayes-data}
 ld_cols <- grep("^LD", names(afd_projection), value = TRUE)
 if (length(ld_cols) == 0) {
   stop("Aucun axe LD trouve dans afd_projection.")
@@ -925,7 +925,7 @@ knitr::kable(
 
 Le code estime, pour chaque classe, les parametres gaussiens par variable (`mu`, `sigma^2`) puis applique la regle de Bayes pour obtenir des posteriori.
 
-```r
+```{r bayes-model-utils}
 safe_auc <- function(y_true_bin, prob) {
   if (length(unique(y_true_bin)) < 2 || length(unique(prob)) < 2) {
     return(NA_real_)
@@ -1019,7 +1019,7 @@ predict_gaussian_bayes <- function(model, df_new) {
 }
 ```
 
-```r
+```{r bayes-train-eval}
 bayes_model <- fit_gaussian_bayes(train_df, ld_cols)
 bayes_pred_test <- predict_gaussian_bayes(bayes_model, test_df)
 
@@ -1038,7 +1038,7 @@ knitr::kable(metrics_holdout)
 La validation croisée stratifiée évite de conclure sur un unique split train/test.
 Chaque fold conserve la proportion des classes afin de stabiliser l'estimation des performances.
 
-```r
+```{r bayes-cv}
 set.seed(4209)
 k_folds <- 5
 
@@ -1076,7 +1076,7 @@ knitr::kable(cv_summary)
 
 ## Technique bayésienne avancée : MCMC (MCMClogit)
 
-```r
+```{r bayes-mcmc}
 mcmc_metrics <- NULL
 mcmc_posterior_summary <- NULL
 
@@ -1125,7 +1125,7 @@ if (requireNamespace("MCMCpack", quietly = TRUE)) {
 
 ## Technique bayésienne avancée : inférence variationnelle (option)
 
-```r
+```{r bayes-vi}
 vi_metrics <- NULL
 
 if (requireNamespace("rstanarm", quietly = TRUE)) {
@@ -1158,7 +1158,7 @@ if (requireNamespace("rstanarm", quietly = TRUE)) {
 
 ## Sauvegarde des artefacts bayésiens
 
-```r
+```{r bayes-save}
 saveRDS(bayes_model, "artifacts/bayes_gaussian_model.rds")
 saveRDS(metrics_holdout, "artifacts/bayes_holdout_metrics.rds")
 saveRDS(cv_results, "artifacts/bayes_cv_fold_metrics.rds")
@@ -1171,7 +1171,7 @@ L'évaluation est structurée pour répondre au cahier des charges. Les métriqu
 
 ## Mesures de performance sur holdout
 
-```r
+```{r eval-holdout-details}
 test_pred_class <- ifelse(bayes_pred_test$prob_ia >= 0.5, "IA", "Humain")
 test_pred_class <- factor(test_pred_class, levels = c("Humain", "IA"))
 
@@ -1186,7 +1186,7 @@ knitr::kable(metrics_holdout)
 
 ## ROC-AUC et calibration probabiliste
 
-```r
+```{r eval-roc-calibration}
 y_test_bin <- ifelse(test_df$classe == "IA", 1, 0)
 
 roc_obj <- pROC::roc(
@@ -1241,7 +1241,7 @@ knitr::kable(calibration_tbl)
 
 ## Validation croisée stratifiée k-fold robuste
 
-```r
+```{r eval-repeated-cv}
 set.seed(4209)
 k_folds_eval <- 5L
 n_repeats_eval <- 3L
@@ -1284,7 +1284,7 @@ cv_repeated_summary <- cv_repeated_results %>%
 knitr::kable(cv_repeated_summary)
 ```
 
-```r
+```{r eval-repeated-cv-plots}
 ggplot(cv_repeated_results, aes(x = factor(repeat_id), y = f1)) +
   geom_boxplot(fill = "#ff7f0e", alpha = 0.75) +
   labs(
@@ -1306,7 +1306,7 @@ ggplot(cv_repeated_results, aes(x = factor(repeat_id), y = roc_auc)) +
 
 ## Synthèse des résultats d'évaluation
 
-```r
+```{r eval-summary}
 eval_summary_table <- dplyr::bind_rows(
   metrics_holdout %>% mutate(evaluation = "Holdout 80/20"),
   cv_summary %>% mutate(evaluation = "Stratified 5-fold"),
@@ -1351,7 +1351,7 @@ knitr::kable(eval_summary_table)
 
 ## Sauvegarde des artefacts d'évaluation
 
-```r
+```{r eval-save}
 saveRDS(conf_matrix, "artifacts/eval_confusion_matrix_holdout.rds")
 saveRDS(roc_curve_df, "artifacts/eval_roc_curve_holdout.rds")
 saveRDS(calibration_tbl, "artifacts/eval_calibration_holdout.rds")
@@ -1370,7 +1370,7 @@ Cette architecture fournit un bon compromis entre performance et interprétabili
 
 ## Résultats clés
 
-```r
+```{r report-key-results}
 key_results <- eval_summary_table %>%
   filter(evaluation %in% c("Holdout 80/20", "Repeated stratified k-fold")) %>%
   mutate(across(where(is.numeric), ~ round(.x, 4)))
@@ -1382,7 +1382,7 @@ Les résultats montrent que le modèle bayésien sur espace réduit AFD atteint 
 
 ## Défis rencontrés et limites
 
-```r
+```{r report-challenges}
 challenges_tbl <- tibble::tibble(
   defis = c(
     "Hétérogénéité des schémas entre fichiers",

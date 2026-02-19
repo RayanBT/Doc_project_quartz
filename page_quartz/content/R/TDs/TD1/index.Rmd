@@ -12,15 +12,17 @@ output:
 
 
 
+```{=html}
 <style type="text/css">
 body, td {font-size: 17px;}
 code.r{font-size: 5px;}
 
 pre { font-size: 15px;}
 </style>
+```
 
 
-```r
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -190,7 +192,7 @@ Nous utilisons :
 *rmq*: Ne jamais oublier d'effacer  toutes les variables en mémoire au début de votre script (réinitialiser l'environnement)
 
 
-```r
+```{r}
 # à compléter
 rm(list = ls())
 library(kableExtra)
@@ -200,7 +202,7 @@ library(caret)
 ```
 
 
-```r
+```{r, echo = T}
 # à compléter
 df = data.frame('Salaire'  = c('< 30', '30 - 50', '30 - 50', '30 - 50', '> 50'),
                 'Impots'   = c('< 20','< 20','< 20','> 20','> 20'),
@@ -211,7 +213,7 @@ df = data.frame('Salaire'  = c('< 30', '30 - 50', '30 - 50', '30 - 50', '> 50'),
 
 Affichage du tableau avec *kableExtra*
 
-```r
+```{r}
 # à compléter
 df %>% kbl(digits=3) %>%    
        kable_styling(bootstrap_options = "striped", full_width = F, position = "center", latex_options = 'stripped') %>% 
@@ -221,20 +223,20 @@ df %>% kbl(digits=3) %>%
 
 On scinde le dataFrame et l'on crée un dataFrame X (prédicteur) et un vecteur des catégories à prédire (Y)
 
-```r
+```{r, echo = T}
 # à compléter
 X <- df[,-4] ; Y = df$Controle
 ```
 
 
-```r
+```{r, echo = F}
 # à compléter
 X %>% kbl(digits=3) %>%    
        kable_styling(bootstrap_options = "striped", full_width = F, position = "center", latex_options = 'stripped') %>% 
        scroll_box( height = "250px")
 ```
 
-```r
+```{r, echo = T}
 # à compléter
 data.frame(Y = Y) %>% kbl(digits=3) %>%    
        kable_styling(bootstrap_options = "striped", full_width = F, position = "center", latex_options = 'stripped') %>% 
@@ -267,7 +269,7 @@ Si vous éprouver des difficultés, il est possible d’utiliser dans un premier
 
 les résultas R sont les suivants;
 
-```r
+```{r, echo = T}
 # à compléter
 contingence<- lapply(X, function(x){  
   temp_1   <- table(Y,x)
@@ -301,7 +303,7 @@ L'ensemble des calculs est réalisé en modifiant les tableaux de contingence de
 A partir des tableaux de contingence stockés dans la liste, nous obtenons la liste des probabilités conditionnelles:
 Nous appelons cette nouvelle liste  *prop_cond*
 
-```r
+```{r, echo = T}
 # à compléter
 k <- length(unique(Y))
 m <- 1
@@ -341,7 +343,7 @@ Pour éviter les problèmes de débordement de capacité mémoire nous calculero
 
 Le jeu des données test est le suivant (*data_test*) :
 
-```r
+```{r, echo = T}
 # à compléter
 data_test = data.frame('Salaire'  = c('< 30', '30 - 50', '> 50', '> 50', '30 - 50'),
                        'Impots'   = c('< 20','< 20','> 20','< 20','> 20'),
@@ -349,7 +351,7 @@ data_test = data.frame('Salaire'  = c('< 30', '30 - 50', '> 50', '> 50', '30 - 5
                       )
 ```
 
-```r
+```{r, echo = T}
 # à compléter
 data_test %>% kbl(digits=3) %>%    
        kable_styling(bootstrap_options = "striped", full_width = F, position = "center", latex_options = 'stripped') %>% 
@@ -360,17 +362,17 @@ data_test %>% kbl(digits=3) %>%
 
 La probabilité d'appartenance à priori correspond à la probabilité qu'un individus ait un contrôle ou non. Elle est calculée à partir des données entraînement.  Les résultats sont stockés dans un vecteur *priori*. De plus, on stocke le "nom" des catégories dans un vecteur(ici il s'agit simplement de 'Oui' et 'Non')
 
-```r
+```{r, echo = T}
 # à compléter
 priori <- prop.table(table(Y))
 names_priori <- names(priori)
 ```
 
-```r
+```{r}
 # à compléter
 priori
 ```
-```r
+```{r}
 # à compléter
 names_priori
 ```
@@ -378,7 +380,7 @@ names_priori
 
 Les probabilités d'affectation pour chaque individus test sont stockées dans une matrice. Les résultats sont les suivants :
 
-```r
+```{r, echo = T}
 
 # à compléter
 Test    <- NULL
@@ -407,7 +409,7 @@ LnTest <- rbind(LnTest, lnV)
 ```
 
 
-```r
+```{r, echo = T}
 
 # à compléter
 data.frame(LnTest)%>% kbl(digits=4) %>%    
@@ -444,7 +446,7 @@ L'ensemble des résultats sera stocké dans un tableau (data.frame)
 
 On choisira max(hmap) pour prédire la présence ou l'absence de contrôle. Les résultats seront résumés dans un data.frame
 
-```r
+```{r, echo = T}
 
 # à compléter
 resulTest <- data.frame(data_test, 'Pred' = colnames(LnTest)[apply(LnTest,1,which.max)] ) 
@@ -479,7 +481,7 @@ Cette fonction devra retourner la liste suivante:
 * prob_cond est la liste des tableaux des probabilités conditionnelles pour chaque variable
 * priori étant le tableau des probabilités d'appartenance au groupes (contrôle = Oui, Contrôle = Non)
 
-```r
+```{r, echo = T}
 # à compléter
 Naive_Bayes <- function( X, Y, m=1){
   
@@ -503,7 +505,7 @@ Naive_Bayes <- function( X, Y, m=1){
 
 Les résultats sont les suivants:
 
-```r
+```{r}
 # à compléter
 model <-  Naive_Bayes(X,Y,m=1)
 print(model)
@@ -522,7 +524,7 @@ Pour réaliser la prédiction, nous créons une fonction *Predict_Bay* qui retou
 les résultats sont les suivants
 
 
-```r
+```{r, echo = T}
 # à compléter
 Predict_Bayes <- function(model, X_pred)
 {
@@ -560,13 +562,13 @@ return(out)
 ```
 
 
-```r
+```{r}
 # à compléter
 out_pred <- Predict_Bayes(model, data_test)
 ```
 
 
-```r
+```{r, echo = T}
 # à compléter
 out_pred %>% kbl(digits=4) %>%    
        kable_styling(bootstrap_options = "striped", full_width = F, position = "center", latex_options = 'stripped')
@@ -589,14 +591,14 @@ Le jeux de données comprend 12 attributs et 4000 instances (fichier *data_test.
 
 
 On charge le fichier
-```r
+```{r}
 # à compléter
 load('data_test.Rda')
 ```
 
 En utilisant les scripts, vous devez obtenir les probabilités conditionnelles suivantes 
 
-```r
+```{r, echo = T}
 # à compléter
 X <- data_test[,1:11]
 obs <- data_test[,12] 
@@ -606,7 +608,7 @@ print(model)
 
 On réalise maintenant la prédiction sur le jeux de données. Attention les calculs peuvent durer plusieurs minutes compte tenu du nombre d'instances !
 
-```r
+```{r}
 # à compléter
 out_pred <- Predict_Bayes(model, X)
 print(out_pred$pred, obs)
@@ -617,7 +619,7 @@ print(out_pred$pred, obs)
 
 Nous utilisons maintenant la fonction NaivesBaye du paquet e1071
 
-```r
+```{r}
 # à compléter
 model_e1071 <- naiveBayes(as.factor(event) ~ ., data = data_test)
 pred_e1071  <- predict(model_e1071, data_test)
@@ -625,3 +627,12 @@ confusionMatrix(pred_e1071, obs)
 ```
 
 Les résultats doivent être les mêmes.... ce qui prouve que vous avez bien travaillé !
+
+
+
+
+
+
+
+
+

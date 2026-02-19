@@ -16,7 +16,7 @@ code.r{font-size: 5px;}
 pre { font-size: 12px;}
 </style>
 
-```r
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -140,7 +140,7 @@ phrases, sujets) qui ont le plus d'influence sur la distinction entre les domain
 
 Pour commencer notre analyse, la première étape est bien sûr de charger les données. Le jeu de données est contenu dans un fichier CSV, que nous allons importer dans R. Pour que les calculs ne soient pas trop longs et pour avoir une première idée du fonctionnement de nos méthodes, j'ai décidé de me concentrer sur un échantillon de 500 thèses pour commencer.
 
-```r
+```{r}
 data <- read.csv("french_thesis_20231021_metadata.csv")
 data <- head(data, 500)
 
@@ -156,14 +156,14 @@ head(data)
 
 Avant de pouvoir analyser le contenu des résumés, il faut faire un peu de ménage. Un texte brut contient beaucoup d'éléments qui peuvent perturber un algorithme, comme la ponctuation ou les majuscules. Voici les étapes que j'ai suivies pour nettoyer chaque résumé : premièrement, j'ai appliqué un **passage en minuscules** pour que l'algorithme ne fasse pas de différence entre "Science" et "science". Ensuite, j'ai procédé à la **suppression de la ponctuation** — les virgules, points, etc., ne sont pas utiles pour notre analyse sémantique. Puis, j'ai effectué un **retrait des espaces superflus** pour avoir un texte propre et bien formaté. Quatrièmement, j'ai réalisé la **suppression des "stopwords"** qui sont des mots très courants (comme "le", "la", "de", "et"...) qui n'apportent pas beaucoup de sens ; je me suis servi d'une liste de stopwords français pour les filtrer. Enfin, j'ai appliqué une **stemmatisation (ou racinisation)**, une technique qui permet de réduire les mots à leur racine — par exemple, "analyse", "analyser" et "analytique" deviendront tous "analy". Cela permet de regrouper les mots d'une même famille et de réduire le nombre de termes uniques.
 
-```r
+```{r}
 
 library(tm)
 library(SnowballC)
 library(stopwords)
 ```
 
-```r
+```{r}
 clean_text <- function(text) {
   text <- tolower(text)
   text <- gsub("[[:punct:]]", " ", text)
@@ -179,7 +179,7 @@ data$Description_clean <- ifelse(
 )
 ```
 
-```r
+```{r}
 preprocess_text <- function(text_clean) {
   stopwords_fr <- stopwords("fr")
   
@@ -206,7 +206,7 @@ data$Description_stemmed <- preprocess_text(data$Description_clean)
 
 Après ce nettoyage, on peut voir que la longueur moyenne des résumés a bien diminué, ce qui est normal puisque nous avons retiré beaucoup de mots et de caractères inutiles.
 
-```r
+```{r}
 non_vides <- data$Description != ""
 n_non_vides <- sum(non_vides)
 
@@ -226,7 +226,7 @@ Maintenant que les textes sont propres, il faut les transformer en quelque chose
 
 L'idée est de créer une grande matrice où chaque ligne représente une thèse et chaque colonne représente un mot. La valeur dans chaque cellule est un score qui indique l'importance de ce mot pour cette thèse. Ce score est calculé en deux parties : d'une part, le **TF (Term Frequency)** qui compte simplement la fréquence d'un mot dans un document — un mot qui apparaît souvent est probablement important. D'autre part, l'**IDF (Inverse Document Frequency)** qui regarde à quel point un mot est rare dans l'ensemble des documents. Un mot qui apparaît dans presque toutes les thèses (par exemple, le mot "thèse" lui-même) n'est pas très utile pour les différencier : l'IDF va donc donner moins de poids à ces mots très courants et plus de poids aux mots rares, qui sont souvent plus spécifiques à un domaine. En combinant les deux, on obtient un score qui représente bien l'importance d'un mot pour caractériser une thèse en particulier.
 
-```r
+```{r}
 corpus <- Corpus(VectorSource(data$Description_stemmed))
 dtm <- DocumentTermMatrix(corpus, 
                           control = list(weighting = weightTfIdf))
@@ -252,7 +252,7 @@ La matrice TF-IDF que nous venons de construire constitue notre premier ensemble
 
 On remarque que cette matrice est très "creuse" (sparse), c'est-à-dire qu'elle contient une grande majorité de zéros. C'est tout à fait normal : un résumé donné ne contient qu'un petit sous-ensemble de tous les mots possibles dans le corpus.
 
-```r
+```{r}
 mat <- tfidf_matrix
 nb_doc <- nrow(mat)
 nb_term <- ncol(mat)
@@ -269,7 +269,7 @@ Le TF-IDF se base sur les mots, mais on peut essayer d'aller un cran plus loin e
 
 L'idée du LDA est de supposer qu'il existe un certain nombre de thèmes cachés dans les documents, et que chaque document est un mélange de ces thèmes. L'algorithme va alors essayer de trouver quels sont les mots qui caractérisent le mieux chaque thème (par exemple, un thème "Biologie" pourrait être défini par les mots "cellule", "protéine", "gène"...) et quelle est la proportion de chaque thème dans chaque document. J'ai demandé à l'algorithme de trouver 10 thèmes, ce qui nous donne une vision plus abstraite et sémantique du contenu, particulièrement utile pour la classification.
 
-```r
+```{r}
 if (!require("topicmodels", quietly = TRUE)) {
   options(repos = c(CRAN = "https://cloud.r-project.org"))
   install.packages("topicmodels")
@@ -277,7 +277,7 @@ if (!require("topicmodels", quietly = TRUE)) {
 library(topicmodels)
 ```
 
-```r
+```{r}
 n_topics <- 10
 my_seed <- 42
 
@@ -318,7 +318,7 @@ cat(sprintf("Nombre de rubriques: %d\n", n_topics))
 
 Une fois le modèle entraîné, on peut regarder les mots les plus importants pour chaque thème pour essayer de comprendre ce qu'ils représentent. On obtient aussi une matrice où chaque thèse est décrite par 10 scores, représentant sa "proportion" de chaque thème.
 
-```r
+```{r}
 resultat <- posterior(lda_model)
 topic_probabilities <- resultat$topics
 cat(sprintf("Matrice des probabilités de rubriques: %d documents x %d rubriques\n", nrow(topic_probabilities), ncol(topic_probabilities)))
@@ -338,7 +338,7 @@ while (i <= n_topics) {
 
 Maintenant, j'ai deux types de caractéristiques : d'une part, les scores **TF-IDF**, qui sont très bons pour identifier les mots-clés spécifiques d'un texte, et d'autre part les scores de **thèmes LDA**, qui capturent le sens général et le contexte. L'idée est de combiner les deux pour avoir une représentation plus riche et plus robuste. J'ai décidé de donner un peu plus de poids au TF-IDF (70%), car les mots-clés précis sont souvent très importants, tout en gardant 30% pour les thèmes LDA qui apportent une vision d'ensemble. Avant de les fusionner, j'ai normalisé les deux matrices pour qu'elles soient à la même échelle et qu'un type de caractéristique ne domine pas l'autre.
 
-```r
+```{r}
 tfidf_matrix_full <- as.matrix(dtm_reduced)
 
 sommes_lignes <- rowSums(tfidf_matrix_full)
@@ -410,7 +410,7 @@ features_df <- as.data.frame(combined_features)
 
 Avant de passer à la réduction de dimension, il faut préparer la variable que l'on veut prédire : le domaine de la thèse. J'ai cherché une colonne comme "Domain" ou "Category" dans les données. Une fois trouvée, il faut s'assurer qu'elle est bien alignée avec notre matrice de caractéristiques (autant de labels que de documents).
 
-```r
+```{r}
 y_label <- NULL
 
 cat("Colonnes disponibles dans les donnees:\n")
@@ -476,7 +476,7 @@ C'est exactement ce que fait l'**Analyse Discriminante Linéaire (LDA)**. Contra
 
 Le nombre de dimensions résultant sera au maximum de `k-1`, où `k` est le nombre de classes.
 
-```r
+```{r}
 if (!require("MASS", quietly = TRUE)) {
   options(repos = c(CRAN = "https://cloud.r-project.org"))
   install.packages("MASS")
@@ -539,7 +539,7 @@ L'idée de la KDA est d'utiliser une "astuce du noyau" (kernel trick) pour proje
 
 J'ai testé cette approche pour voir si elle apportait un gain par rapport à la LDA simple. C'est une bonne pratique pour vérifier si une approche linéaire est suffisante.
 
-```r
+```{r}
 if (!require("kernlab", quietly = TRUE)) {
   options(repos = c(CRAN = "https://cloud.r-project.org"))
   install.packages("kernlab")
@@ -586,7 +586,7 @@ Après avoir testé les deux méthodes, il faut faire un choix. La LDA est plus 
 
 Pour un premier essai, et comme la LDA est déjà très performante pour les données textuelles, j'ai décidé de conserver les caractéristiques issues de la **LDA** pour la suite de l'analyse. On dispose maintenant d'un jeu de données avec un petit nombre de caractéristiques très informatives, prêtes pour la classification.
 
-```r
+```{r}
 if (!is.null(y_label)) {
   cat("\n========== RESUME DE LA REDUCTION DE DIMENSIONNALITE ==========\n")
   cat(sprintf("Dimensions originales: %d caracteristiques\n", ncol(combined_features)))
@@ -624,7 +624,7 @@ C'est un modèle probabiliste simple mais souvent très efficace, surtout pour l
 
 Pour l'entraîner et l'évaluer, j'ai divisé les données : 80% pour l'entraînement du modèle et 20% pour le tester et mesurer sa performance sur des données qu'il n'a jamais vues.
 
-```r
+```{r}
 if (!require("e1071", quietly = TRUE)) {
   options(repos = c(CRAN = "https://cloud.r-project.org"))
   install.packages("e1071")
@@ -676,7 +676,7 @@ if (!is.null(y_label)) {
 
 Puisque Naive Bayes seul ne suffit pas (~ 12% de précision), j'explore des **modèles bayésiens et non-bayésiens avancés** qui gèrent mieux la haute dimension et l'imbalance de classes. Parmi ceux-ci, le **SVM (Support Vector Machine)** offre une excellente performance en haute dimension, le **Random Forest** s'avère robuste aux données imbalancées, et le **LightGBM** propose un gradient boosting très efficace.
 
-```r
+```{r}
 options(repos = c(CRAN = "https://cloud.r-project.org"))
 
 if (!require("e1071", quietly = TRUE)) {
@@ -860,7 +860,7 @@ if (!is.null(y_label)) {
 
 Comparons maintenant les deux approches bayésiennes : Naive Bayes et Régression Logistique Multinomiale Ridge.
 
-```r
+```{r}
 if (!is.null(y_label)) {
   cat("\n========== COMPARAISON GLOBALE: TOUS LES MODELES ==========\n")
   
@@ -922,7 +922,7 @@ Cette matrice croise les vraies classes avec les classes prédites :
 
 Cela permet d'identifier les classes que le modèle confond, et de calculer des métriques telles que **précision**, **recall (sensibilité)** et **score F1** pour chaque cluster d'étude.
 
-```r
+```{r}
 if (!is.null(y_label)) {
   cat("\n========== ANALYSE DU MEILLEUR MODELE ==========\n")
   
@@ -945,7 +945,7 @@ La performance mesurée sur l'ensemble de test de 20% dépend du hasard de la s�
 
 Cette méthode découpe les données en 5 "plis" (folds) et répète l'entraînement 5 fois, chaque fois en utilisant 4 plis pour l'entraînement et 1 pour le test. Le score final est la moyenne de ces 5 scores, donnant une bien meilleure idée de la généralisabilité du modèle. La stratification assure que chaque pli contient la même proportion de chaque classe.
 
-```r
+```{r}
 if (!require("caret", quietly = TRUE)) {
   options(repos = c(CRAN = "https://cloud.r-project.org"))
   install.packages("caret")
@@ -1050,7 +1050,7 @@ Pour la classification de texte, les hyperparamètres critiques varient selon l'
 - **SVM :** Paramètre de régularisation (C) et largeur du kernel (sigma)
 - **Random Forest :** Nombre de variables par split (mtry) et nombre d'arbres (ntree)
 
-```r
+```{r}
 if (!require("caret", quietly = TRUE)) {
   options(repos = c(CRAN = "https://cloud.r-project.org"))
   install.packages("caret")
@@ -1195,7 +1195,7 @@ Pour une évaluation plus robuste des hyperparamètres, nous utilisons la **vali
 
 Cette approche réduit le risque de surapprentissage des hyperparamètres et donne une meilleure estimation de la performance réelle.
 
-```r
+```{r}
 if (!is.null(y_label) && exists("final_features")) {
   cat("\n========== VALIDATION CROISEE INTERNE (5-Fold CV) ==========\n")
   
@@ -1350,7 +1350,7 @@ if (!is.null(y_label) && exists("final_features")) {
 
 Sur la base des résultats du Grid Search et de la validation croisée interne, nous sélectionnons maintenant les **meilleurs hyperparamètres** pour chaque algorithme et comparons les performances finales.
 
-```r
+```{r}
 if (!is.null(y_label)) {
   cat("\n========== SELECTION DES MEILLEURS HYPERPARAMETRES ==========\n")
   
@@ -1498,7 +1498,7 @@ if (!is.null(y_label)) {
 
 Cette évaluation finale exhaustive utilise le meilleur modèle sélectionné pour calculer toutes les métriques pertinentes. Les métriques reportées incluent l'exactitude (% global de prédictions correctes), le Kappa (exactitude ajustée pour le hasard, de 0 = aléatoire à 1 = parfait), les moyennes macro et pondérées des métriques multi-classe, ainsi que les métriques par classe (sensibilité, spécificité, précision, F1-Score). Un Kappa supérieur à 0.7 indique un excellent accord au-delà du hasard, et le F1 équilibre précision et rappel, ce qui est particulièrement important si les classes sont imbalancées.
 
-```r
+```{r}
 if (!require("mltools", quietly = TRUE)) {
   options(repos = c(CRAN = "https://cloud.r-project.org"))
   install.packages("mltools")
@@ -1585,7 +1585,7 @@ if (model_ok == TRUE) {
 
 Ce rapport décompose les performances individuelles pour chaque classe de domaine. Le tableau synthétique inclut les TP/FP/FN/TN (vrais/faux positifs et négatifs), la précision (% des prédictions positives correctes, important si le coût des FP est élevé), le rappel (% des vraies positives identifiées, important si le coût des FN est élevé), le F1-Score (moyenne harmonique, meilleur pour gérer l'imbalance) et le support (nombre d'exemples dans chaque classe). Les moyennes agrégées comprennent la macro-moyenne (moyenne simple traitant chaque classe également) et la moyenne pondérée par support (intégrant l'imbalance). Les classes avec un F1 bas indiquent les zones de difficulté du modèle.
 
-```r
+```{r}
 ok_pour_rapport <- FALSE
 if (!is.null(y_label)) {
   if (exists("final_model")) {
@@ -1662,7 +1662,7 @@ if (ok_pour_rapport == TRUE) {
 
 Le diagnostic des défaillances a pour objectif de comprendre où et comment le modèle se trompe, en répondant à plusieurs questions clés : combien d'erreurs totales avons-nous et quel est le taux d'erreur global ? Quels types d'erreurs observe-t-on, c'est-à-dire quelle classe confond-on avec quelle autre ? Quelle confiance le modèle avait-il lorsqu'il s'est trompé ? Y a-t-il des patterns identifiables dans les erreurs ? La matrice de confusion, en particulier ses éléments hors-diagonale, montre les confusions paires par paires et révèle que une haute confusion symétrique indique des classes sémantiquement proches, tandis qu'une confusion asymétrique suggère que l'une des classes est plus confondante que l'autre. Un point d'action important est que les erreurs accompagnées de précisions élevées correspondent à des hard examples qu'il est utile d'investiguer pour améliorer le modèle.
 
-```r
+```{r}
 ok_analyse <- FALSE
 if (!is.null(y_label)) {
   if (exists("final_model")) {
@@ -1763,7 +1763,7 @@ if (ok_analyse == TRUE) {
 
 L'objectif ici est d'identifier les mots et termes qui définissent chaque classe, rendant le modèle interprétable. Pour ce faire, j'applique une approche où pour chaque classe je calcule le poids TF-IDF moyen de chaque terme, puis je classe les termes par importance et extrais les top 15 termes par classe ainsi que les termes uniques qui n'apparaissent pas dans les autres classes. Cette interprétation révèle que les **top termes** forment le vocabulaire caractéristique de la classe, les **termes uniques** constituent un vocabulaire distinctif avec un pouvoir discriminant élevé, et les **termes de haute importance** sont prédictifs et utiles pour la classification. Un insight important est que si une classe n'a pas assez de termes uniques, cela indique que les classes sont sémantiquement similaires, ce qui explique les confusions observées entre elles.
 
-```r
+```{r}
 if (!is.null(y_label)) {
   cat("========== ANALYSE DES TERMES DISCRIMINANTS ==========\n")
   
@@ -1864,7 +1864,7 @@ if (!is.null(y_label)) {
 
 La dimension thématique est complémentaire aux termes et montre les thèmes latents dominants. Le processus implique, pour chaque classe, de calculer la probabilité moyenne des topics, d'identifier les 3 topics dominants par classe et d'afficher les termes principaux de ces topics. L'interprétation révèle que chaque classe est associée à des thèmes (topics) préférentiels ; lorsque des topics sont communs entre classes, cela indique des confusions probables, tandis que des topics distincts assurent une séparation claire. Par exemple, en comparant une classe Physique avec une classe Chimie, on observe que la Physique s'associe à des topics sur la mécanique, l'énergie et la relativité, tandis que la Chimie s'associe à des topics sur les molécules, les réactions et les éléments ; un faible chevauchement entre ces topics indique que le modèle devrait bien les distinguer.
 
-```r
+```{r}
 topics_ok <- FALSE
 if (!is.null(y_label)) {
   if (exists("topic_probabilities")) {
@@ -1955,7 +1955,7 @@ if (topics_ok == TRUE) {
 
 L'objectif ici est d'identifier les **facteurs discriminants** — les caractéristiques (features/termes) qui ont le plus d'impact pour **distinguer les domaines d'étude**. Pour cela, nous analysons comment les features varient entre les classes : les features qui ont les plus grandes différences entre classes sont celles qui permettent au modèle de les séparer. Une feature discriminante élevée signifie que ses valeurs sont très différentes selon la classe, ce qui la rend prédictive pour la classification.
 
-```r
+```{r}
 conditions_ok <- FALSE
 if (!is.null(y_label)) {
   if (exists("final_features")) {

@@ -29,7 +29,7 @@ pre, code { font-size: 12px; }
 }
 </style>
 
-```r
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
@@ -112,7 +112,7 @@ Le choix de fonctions modularisées facilite la vérification scientifique du tr
 on peut tester chaque transformation isolément, puis valider l'effet cumulé sur les
 métriques finales.
 
-```r
+```{r helpers}
 max_train_docs <- 12000L
 top_terms <- 350L
 validation_ratio <- 0.20
@@ -312,7 +312,7 @@ relative des classes, ce qui limite les biais d'évaluation. Pour un non expert,
 revient à dire qu'on évite de comparer le modèle sur un jeu de test qui n'aurait pas
 la même "proportion de sentiments" que les données d'entraînement.
 
-```r
+```{r load-data}
 report_path <- tryCatch(knitr::current_input(dir = TRUE), error = function(e) "")
 report_dir <- if (nzchar(report_path)) dirname(report_path) else getwd()
 candidate_roots <- unique(c(
@@ -384,14 +384,14 @@ Techniquement, ce choix diminue la variance inutile introduite par le bruit typo
 Pédagogiquement, on peut l'interpréter comme une standardisation: deux tweets qui disent
 la même chose avec des formes d'écriture différentes deviennent comparables.
 
-```r
+```{r clean-preview}
 clean_preview <- train_model %>%
   dplyr::select(tweet, clean_text) %>%
   slice_head(n = min(5, nrow(train_model)))
 knitr::kable(clean_preview)
 ```
 
-```r
+```{r clean-step-demo}
 clean_step_demo <- train_model %>%
   dplyr::select(tweet) %>%
   slice_head(n = min(3, nrow(train_model))) %>%
@@ -417,7 +417,7 @@ Dans le vocabulaire du cours, cette étape remplace l'espace textuel brut par un
 euclidien exploitable par les modèles linéaires. Pour quelqu'un de non expert, TF-IDF
 attribue simplement plus d'importance aux mots spécifiques et moins aux mots banals.
 
-```r
+```{r tfidf}
 stop_words_vec <- unique(tidytext::stop_words$word)
 
 train_tfidf <- build_train_tfidf(train_model, top_terms, stop_words_vec)
@@ -448,7 +448,7 @@ Ce détail est technique mais crucial: un encodage incohérent des classes peut 
 la prédiction et la matrice de confusion. En version simple: on s'assure que le modèle
 et les données parlent exactement le même "langage de classes".
 
-```r
+```{r sentiment-mapping}
 sentiment_mapping <- tibble(
   sentiment = levels(train_model$sentiment),
   sentiment_code = seq_along(levels(train_model$sentiment))
@@ -456,7 +456,7 @@ sentiment_mapping <- tibble(
 knitr::kable(sentiment_mapping)
 ```
 
-```r
+```{r numeric-encoding-example}
 numeric_encoding_preview <- train_model %>%
   dplyr::select(doc_id, sentiment) %>%
   mutate(sentiment_code = as.integer(sentiment)) %>%
@@ -481,7 +481,7 @@ augmentent la dispersion inter-classes tout en reduisant la dispersion intra-cla
 Sur le plan intuitif, on construit une nouvelle vue des données ou les tweets de même
 sentiment sont, autant que possible, rapproches les uns des autres.
 
-```r
+```{r afd-model}
 class_priors <- prop.table(table(train_model$sentiment))
 
 lda_model <- MASS::lda(
@@ -520,7 +520,7 @@ Cette lecture est importante dans un rendu technique: elle montre que la project
 n'est pas arbitraire mais contrainte par la théorie (nombre de classes) et par la
 structure empirique des données.
 
-```r
+```{r afd-space-summary}
 n_classes <- nlevels(train_model$sentiment)
 n_features <- ncol(x_train)
 n_axes_max <- min(n_features, n_classes - 1L)
@@ -557,7 +557,7 @@ Interpretes pédagogiquement, ces coefficients sont des "poids directionnels": u
 positif fort sur LD1 pousse un tweet vers un côté de l'axe, un poids negatif fort le
 pousse vers l'autre côté.
 
-```r
+```{r discriminant-factors}
 lda_scaling <- as.data.frame(lda_model$scaling) %>%
   tibble::rownames_to_column(var = "term")
 
@@ -589,7 +589,7 @@ de l'espace projeté (visualisation et silhouette).
 
 ## Métriques de classification
 
-```r
+```{r metrics-table}
 silhouette_score <- NA_real_
 
 if (n_distinct(projection_df$sentiment) > 1 && nrow(projection_df) >= 4) {
@@ -632,7 +632,7 @@ dans l'espace réduit?".
 
 ## Matrice de confusion
 
-```r
+```{r confusion}
 confusion_long <- confusion_tbl %>%
   pivot_longer(cols = -Actual, names_to = "Predicted", values_to = "n")
 
@@ -650,7 +650,7 @@ ggplot(confusion_long, aes(x = Predicted, y = Actual, fill = n)) +
 
 ## Visualisation des facteurs discriminants (projection AFD)
 
-```r
+```{r afd-projection}
 ggplot(projection_df, aes(x = LD1, y = LD2, color = sentiment)) +
   geom_point(alpha = 0.5, size = 1.1) +
   labs(
@@ -678,7 +678,7 @@ Note de clarification importante: ici, `topicmodels::LDA` désigne le modèle de
 Latent Dirichlet Allocation, différent de la LDA discriminante (`MASS::lda`) utilisée
 plus haut pour la classification supervisée.
 
-```r
+```{r topic-visualization}
 topic_counts <- train_tfidf$tokens %>%
   count(doc_id, term, name = "n")
 
@@ -765,7 +765,7 @@ séparation linéaire devient insuffisante.
 
 ## Reproductibilité
 
-```r
+```{r save-outputs}
 report_path_safe <- if (exists("report_path") && nzchar(report_path)) {
   report_path
 } else {
@@ -787,6 +787,6 @@ readr::write_csv(confusion_tbl, file.path(output_dir, "confusion_matrix.csv"))
 readr::write_csv(projection_df, file.path(output_dir, "train_projection.csv"))
 ```
 
-```r
+```{r session-info}
 sessionInfo()
 ```
