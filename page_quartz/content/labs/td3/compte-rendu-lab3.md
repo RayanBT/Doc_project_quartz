@@ -1,9 +1,3 @@
----
-title: "TD3 - Compte rendu"
----
-- Support de cours: [lab3.pdf](./lab3.pdf)
-
-
 # Compte rendu TD3 - Points de modification et reponses aux exercices
 
 ## Recap des modifications a apporter aux scripts (avec raisons)
@@ -152,7 +146,7 @@ ansible-playbook -v -i inventory.aws_ec2.yml configure_sample_app_playbook.yml
 
 Resultat attendu: le playbook configure Node.js et l'app sur les 3 instances.
 
-![](./screens/partie1-etape4.png) ![](./screens/partie1-etape4.2.png)
+![](screens/partie1-etape4.png) ![](screens/partie1-etape4.2.png)
 
 Execution realisee: playbook OK sur les 3 instances (ok=9, changed=8).
 
@@ -171,8 +165,8 @@ Verification navigateur: ouverture de `http://<IP_PUBLIC>:8080` sur les 3 instan
 
 Resultat attendu: la reponse "Hello, World!" s'affiche sur chaque IP.
 
-![](./screens/partie1-etape5.1.png) ![](./screens/partie1-etape5.2.png)
-devops-lab\page_quartz\content\labs\td3\screens
+![](screens/partie1-etape5.1.png) ![](screens/partie1-etape5.2.png)
+
 ### Etape 6 - Creation de l'instance Nginx (load balancer)
 Objectif: creer une instance EC2 dediee a Nginx pour faire l'equilibrage de charge.
 
@@ -184,7 +178,7 @@ ansible-playbook -v create_ec2_instances_playbook.yml --extra-vars "@nginx-vars.
 
 Resultat attendu: une instance taguee `Ansible=nginx_instances` est creee.
 
-![](./screens/partie1-etape6.1.png) ![](./screens/partie1-etape6.2.png)
+![](screens/partie1-etape6.1.png) ![](screens/partie1-etape6.2.png)
 
 ### Etape 7 - Configuration de Nginx et test du load balancer
 Objectif: configurer Nginx comme reverse proxy vers les 3 instances applicatives et verifier la reponse HTTP via le LB.
@@ -206,7 +200,7 @@ curl http://<NGINX_PUBLIC_IP>
 
 Resultat attendu: la reponse de l'app (Hello, World!) via l'IP du LB.
 
-![](./screens/partie1-etape7.png) ![](./screens/partie1-etape7.1.png)
+![](screens/partie1-etape7.png) ![](screens/partie1-etape7.1.png)
 
 Execution realisee: le LB repond et affiche "Hello, World!".
 
@@ -229,7 +223,7 @@ while true; do curl http://<NGINX_PUBLIC_IP>; sleep 1; done
 
 Resultat attendu: la reponse passe progressivement a "DevOps Base!".
 
-![](./screens/partie1-etape8.png)
+![](screens/partie1-etape8.png)
 
 Note (erreur rencontree): j'ai d'abord relance `configure_nginx_playbook.yml`, ce qui ne met pas a jour l'app. Le LB affichait donc encore "Hello, World!". La correction a ete de relancer `configure_sample_app_playbook.yml` pour redeployer l'app sur les instances backend.
 
@@ -321,7 +315,7 @@ curl http://sample-app-alb-1837808816.us-east-2.elb.amazonaws.com
 
 Resultat observe: reponse `Hello, World!` (version de l'app integree dans l'AMI Packer).
 
-![](./screens/partie2-etape11.png)
+![](screens/partie2-etape11.png)
 
 ### Etape 12 - Nouvelle AMI + rolling update ASG
 Objectif: reconstruire l'AMI avec le message "DevOps Base!" et declencher une mise a jour progressive via l'ASG.
@@ -347,7 +341,7 @@ while true; do curl http://sample-app-alb-1837808816.us-east-2.elb.amazonaws.com
 
 Resultat observe: alternance "Hello, World!" puis "DevOps Base!" pendant le refresh, puis stabilisation sur "DevOps Base!".
 
-![](./screens/partie2-etape12.png)
+![](screens/partie2-etape12.png)
 
 ## Deroulement - Partie 3 (Docker + Kubernetes local)
 
@@ -377,7 +371,7 @@ Correction:
 
 Resultat attendu: le client et le serveur Docker repondent.
 
-![](./screens/partie3-etape13.png)
+![](screens/partie3-etape13.png)
 
 Execution realisee: `docker version` OK (client + serveur).
 
@@ -398,7 +392,7 @@ curl http://localhost:8080
 
 Resultat observe: reponse `Hello, World!`.
 
-![](./screens/partie3-etape14.png)
+![](screens/partie3-etape14.png)
 
 ### Etape 15 - Deploiement Kubernetes local
 Objectif: deployer l'app dans le cluster Kubernetes local (Docker Desktop).
@@ -429,7 +423,7 @@ curl http://localhost
 
 Resultat attendu: pods en running et reponse HTTP OK.
 
-![](./screens/partie3-etape15.png)
+![](screens/partie3-etape15.png)
 
 Execution realisee: deployment et service OK, `curl http://localhost` retourne `Hello, World!`.
 
@@ -458,6 +452,6 @@ curl http://localhost
 
 Resultat observe: la reponse passe a `DevOps Base!`.
 
-![](./screens/partie3-etape16.png)
+![](screens/partie3-etape16.png)
 
 Execution realisee: `curl http://localhost` retourne `DevOps Base!`.
