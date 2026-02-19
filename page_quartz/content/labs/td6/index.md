@@ -1,6 +1,6 @@
 # Lab 6 — Infrastructure Cloud & Microservices
 
-- Support de cours: [lab6.pdf](./lab1.pdf)
+- Support de cours: [lab6.pdf](./lab6.pdf)
 
 ##  Objectif du Lab
 

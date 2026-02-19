@@ -1,6 +1,6 @@
 # Compte rendu TD4
 
-- Support de cours: [lab4.pdf](./lab1.pdf)
+- Support de cours: [lab4.pdf](./lab4.pdf)
 
 > Lab 4 – Version Control, Build Systems, and Automated Testing
 

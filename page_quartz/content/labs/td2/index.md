@@ -1,6 +1,6 @@
 # LAB 2 - Rapport d'Exercices
 
-- Support de cours: [lab2.pdf](./lab1.pdf)
+- Support de cours: [lab2.pdf](./lab2.pdf)
 
 ## Section 1: Authenticating to AWS on the Command Line
 
