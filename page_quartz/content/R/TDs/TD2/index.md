@@ -6,5 +6,5 @@ title: "TD2"
 
 Document rendu en HTML.
 
-- [Ouvrir la version HTML (index.html)](./index.html)
+- [Ouvrir la version HTML (index.html)](./td2.html)
 
