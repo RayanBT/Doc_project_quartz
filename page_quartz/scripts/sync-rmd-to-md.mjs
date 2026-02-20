@@ -74,7 +74,7 @@ function buildHtmlWrapper(htmlFilePath, hasPdf) {
     "",
     "Document rendu en HTML.",
     "",
-    `- [Ouvrir la version HTML (${fileName})](./${fileName})`,
+    `- <a href="./${fileName}" target="_blank" rel="noopener noreferrer">Ouvrir la version HTML (${fileName})</a>`,
   ]
 
   if (hasPdf) {
@@ -266,6 +266,16 @@ async function syncHtmlWrappers() {
     const lowerRmd = htmlPath.replace(/\.html$/i, ".rmd")
     if ((await fileExists(upperRmd)) || (await fileExists(lowerRmd))) {
       continue
+    }
+
+    // If an index.md page already exists in this folder, avoid generating duplicate wrappers
+    // for renamed HTML exports like td2.html/td3.html.
+    const htmlName = path.basename(htmlPath).toLowerCase()
+    if (htmlName !== "index.html") {
+      const siblingIndexMd = path.join(path.dirname(htmlPath), "index.md")
+      if (await fileExists(siblingIndexMd)) {
+        continue
+      }
     }
 
     const mdPath = htmlPath.replace(/\.html$/i, ".md")

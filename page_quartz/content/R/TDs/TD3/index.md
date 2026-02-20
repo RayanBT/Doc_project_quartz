@@ -6,5 +6,4 @@ title: "TD3"
 
 Document rendu en HTML.
 
-- [Ouvrir la version HTML (index.html)](./td3.html)
-
+- <a href="./td3.html" target="_blank" rel="noopener noreferrer">Ouvrir la version HTML (td3.html)</a>

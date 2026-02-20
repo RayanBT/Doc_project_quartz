@@ -102,7 +102,8 @@ export const CrawlLinks: QuartzTransformerPlugin<Partial<Options>> = (userOpts) 
                 const isInternal = !(
                   isAbsoluteUrl(dest, { httpOnly: false }) || dest.startsWith("#")
                 )
-                if (isInternal) {
+                const isHtmlFileLink = isInternal && /\.html?(?:[?#].*)?$/i.test(dest)
+                if (isInternal && !isHtmlFileLink) {
                   dest = node.properties.href = transformLink(
                     file.data.slug!,
                     dest,

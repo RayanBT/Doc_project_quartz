@@ -6,5 +6,4 @@ title: "TD2"
 
 Document rendu en HTML.
 
-- [Ouvrir la version HTML (index.html)](./td2.html)
-
+- <a href="./td2.html" target="_blank" rel="noopener noreferrer">Ouvrir la version HTML (td2.html)</a>
