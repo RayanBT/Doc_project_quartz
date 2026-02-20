@@ -58,6 +58,12 @@ Chaque TD comprend :
 - **[TD5](./labs/td5)** - Pratiques avancées
 - **[TD6](./labs/td6)** - Projet final et intégration
 
+### Partie R (en cours de finalisation)
+
+> **Note :** La section R est actuellement en cours de finalisation. L'insertion des résultats dans les comptes-rendus est en cours de réalisation.
+
+- **[Index R](./R)** - Travaux dirigés, mini projets et projet final
+
 ## Technologies utilisées
 
 ### Infrastructure et Cloud
