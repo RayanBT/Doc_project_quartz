@@ -1,3 +1,7 @@
+---
+title: "TD6"
+---
+
 # Lab 6 — Infrastructure Cloud & Microservices
 
 - Support de cours: [lab6.pdf](./lab6.pdf)

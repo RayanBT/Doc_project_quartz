@@ -1,3 +1,7 @@
+---
+title: "TD5"
+---
+
 # Compte rendu TD5 - CI/CD avec GitHub Actions et OpenTofu
 
 - Support de cours: [lab5.pdf](./lab5.pdf)

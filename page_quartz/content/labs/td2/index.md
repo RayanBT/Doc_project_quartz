@@ -1,3 +1,7 @@
+---
+title: "TD2"
+---
+
 # LAB 2 - Rapport d'Exercices
 
 - Support de cours: [lab2.pdf](./lab2.pdf)
