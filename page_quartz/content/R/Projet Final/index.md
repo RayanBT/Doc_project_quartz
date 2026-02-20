@@ -1,5 +1,5 @@
 ﻿---
-title: "Projet final : Classification bayésienne et Analyse Factorielle Discriminante"
+title: "Projet final"
 output:
   html_document:
     theme: readable
@@ -11,7 +11,7 @@ output:
     code_folding: hide
     df_print: paged
 ---
-
+# Classification bayésienne et Analyse Factorielle Discriminante  
 ```r
 knitr::opts_chunk$set(
   echo = TRUE,
@@ -52,9 +52,8 @@ blockquote {
 }
 </style>
 
-::: {align="center"}
 **Fouille de données avec R pour la data science et l'intelligence artificielle**  
-:::
+
 
 
 <hr style="border: 1px solid #bfcad4;">

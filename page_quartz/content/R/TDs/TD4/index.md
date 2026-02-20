@@ -1,5 +1,5 @@
 ---
-title: "<FONT color='#0066CC'><FONT size = 4 ><DIV align= center> AP-4209 ESIEE-Paris: 2024 - 2025 </DIV></FONT></FONT>"
+title: "TD4"
 output:
   html_document:
     highlight: textmate
@@ -15,7 +15,7 @@ body, td {font-size: 15px;}
 code.r{font-size: 5px;}
 pre { font-size: 12px;}
 </style>
-
+# TD 4 : Partie II - ANALYSE FACTORIELLE DISCRIMINANTE 
 
 ```r
 knitr::opts_chunk$set(echo = TRUE)
@@ -34,26 +34,18 @@ if (!rmarkdown::pandoc_available()) {
 }
 ```
 
-<FONT color='#0066CC'><FONT size = 4 >
+<FONT color='#0066CC' size = 4 >
 
-::: {align="center"}
-Fouille de données avec R pour la data science et l'intelligence artificielle\
+**Fouille de données avec R pour la data science et l'intelligence artificielle**
 
-TD 4 : Partie II - ANALYSE FACTORIELLE DISCRIMINANTE   
+</FONT>
 
---Classification supervisée--
-:::
+<FONT color='#0066CC' size = 4 >
 
-</FONT></FONT>
+*Badr TAJINI -- ESIEE Paris*\
+*Source : Bertrand Roudier -- ESIEE Paris*
 
-<FONT color='#0066CC'><FONT size = 4 >
-
-::: {align="center"}
-Badr TAJINI -- ESIEE Paris\
-Source : Bertrand Roudier -- ESIEE Paris
-:::
-
-</FONT></FONT>
+</FONT>
 
 
 <hr style="border: 1px  solid gray">
@@ -292,7 +284,8 @@ knitr::kable(head(afd$Scores, 20), digits = 3, format = 'html')
 
 </hr>
 <!--------------------------------------------------------------------->
-### <FONT color='#0066CC'><FONT size = 4> 3. Classification </FONT></FONT>
+
+### <FONT color='#0066CC' size = 4> 3. Classification </FONT>
 
 <br>
 

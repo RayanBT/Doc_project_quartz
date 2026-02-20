@@ -1,5 +1,5 @@
 ﻿---
-title: "<FONT color='#0066CC'><FONT size = 4 ><DIV align= center> AP-4209 ESIEE-Paris: 2024 - 2025 </DIV></FONT></FONT>"
+title: "MiniProjet 3"
 output:
   html_document:
     highlight: textmate
@@ -15,27 +15,25 @@ body, td {font-size: 15px;}
 code.r{font-size: 5px;}
 pre { font-size: 12px;}
 </style>
-
+# Classification bayésienne et analyse factorielle discriminante
 ```r
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 <FONT color='#0066CC'><FONT size = 4 >
 
-::: {align="center"}
-Fouille de données avec R pour la data science et l'intelligence artificielle\
 
-Projet 3 : Classification bayésienne et analyse factorielle discriminante  \
-:::
+**Fouille de données avec R pour la data science et l'intelligence artificielle**
+
 
 </FONT></FONT>
 
 
 <FONT color='#0066CC'><FONT size = 4 >
 
-::: {align="center"}
-DA CRUZ PEREIRA Antoine -- ESIEE Paris\
-:::
+
+*DA CRUZ PEREIRA Antoine -- ESIEE Paris*
+
  
 </FONT></FONT>
 
@@ -157,7 +155,6 @@ head(data)
 Avant de pouvoir analyser le contenu des résumés, il faut faire un peu de ménage. Un texte brut contient beaucoup d'éléments qui peuvent perturber un algorithme, comme la ponctuation ou les majuscules. Voici les étapes que j'ai suivies pour nettoyer chaque résumé : premièrement, j'ai appliqué un **passage en minuscules** pour que l'algorithme ne fasse pas de différence entre "Science" et "science". Ensuite, j'ai procédé à la **suppression de la ponctuation** — les virgules, points, etc., ne sont pas utiles pour notre analyse sémantique. Puis, j'ai effectué un **retrait des espaces superflus** pour avoir un texte propre et bien formaté. Quatrièmement, j'ai réalisé la **suppression des "stopwords"** qui sont des mots très courants (comme "le", "la", "de", "et"...) qui n'apportent pas beaucoup de sens ; je me suis servi d'une liste de stopwords français pour les filtrer. Enfin, j'ai appliqué une **stemmatisation (ou racinisation)**, une technique qui permet de réduire les mots à leur racine — par exemple, "analyse", "analyser" et "analytique" deviendront tous "analy". Cela permet de regrouper les mots d'une même famille et de réduire le nombre de termes uniques.
 
 ```r
-
 library(tm)
 library(SnowballC)
 library(stopwords)

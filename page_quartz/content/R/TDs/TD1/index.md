@@ -1,6 +1,5 @@
-
 ---
-title: "<FONT color='#0066CC'><FONT size = 4 ><DIV align= center> AP-4209 ESIEE-Paris: 2024 - 2025 </DIV></FONT></FONT>"
+title: "TD1"
 output:
   html_document:
     highlight: textmate
@@ -19,28 +18,22 @@ code.r{font-size: 5px;}
 pre { font-size: 15px;}
 </style>
 
-
+# TD 1 : I. CONSTRUCTION D'UN CLASSIFIEUR BAYESIEN NAIF EN R
 ```r
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 <FONT color='#0066CC'><FONT size = 4 >
 
-::: {align="center"}
-Fouille de données avec R pour la data science et l'intelligence artificielle\
-
-TD 2 : II. CONSTRUCTION D'UN CLASSIFIEUR BAYESIEN NAIF EN R
-:::
-
+**Fouille de données avec R pour la data science et l'intelligence artificielle**
 
 </FONT></FONT>
 
 <FONT color='#0066CC'><FONT size = 4 >
 
-::: {align="center"}
-Badr TAJINI -- ESIEE Paris\
-Source : Bertrand Roudier -- ESIEE Paris
-:::
+
+*Badr TAJINI -- ESIEE Paris*\
+*Source : Bertrand Roudier -- ESIEE Paris*
 
 </FONT></FONT>
 
@@ -60,7 +53,7 @@ Une fois le programme mis au point (que nous considérerons comme la phase de d�
 
 <hr style="border: 1px  solid gray">
 
-### <FONT color='#000033'><FONT size = 3> 1. RAPPELS  </FONT></FONT> 
+### <FONT color='#0066CC'><FONT size = 3> 1. RAPPELS  </FONT></FONT> 
 
 
 -   Le classifieur bayesien naïf est une méthode d'apprentissage supervisé fondée sur le théorème de Bayes. Elle repose sur une hypothèse forte : les descripteurs (Xj) sont deux à deux indépendants conditionnellement aux valeurs de la variable à prédire (Y).
@@ -70,7 +63,7 @@ Une fois le programme mis au point (que nous considérerons comme la phase de d�
 remarque importante. Cette présentation est inspiré des remarquables cours de Ricco RAKOTOMALA disponible sur le blog TANAGRA : http://tutoriels-data-mining.blogspot.com
 
 
-##### <FONT color='#000033'> <FONT size = 3> 1.1 Définition </FONT> </FONT>
+##### <FONT color='#0066CC'> <FONT size = 3> 1.1 Définition </FONT> </FONT>
 
 -  Deux évènements A et B sont indépendants si la connaissance de l'un ne modifie pas la connaissance de l'autre. Dans ces conditions (indépendance) :
 
@@ -80,7 +73,7 @@ P(B/A) = P(B)\\
 P(A \cap B) = P(A)P(B)
 \end{array} \right\}P(A/B) = \frac{{P(B/A)P(A)}}{{P(B)}}$$
 
-##### <FONT color='#000033'><FONT size = 3> 1.2 Classifieur et règle bayésienne </FONT> </FONT>
+##### <FONT color='#0066CC'><FONT size = 3> 1.2 Classifieur et règle bayésienne </FONT> </FONT>
 
 -   Soit un jeux de données (matrice prédictive) composée de n prédicteurs X (n variables). La variable à prédire Y est composée de k classes C.
 
@@ -125,7 +118,7 @@ La probabilité d'appartenance est la suivante :
 <hr>
 <br>
 
-##### <FONT color='#000033'><FONT size = 3> 1.3 Régles d'affectations </FONT></FONT>
+##### <FONT color='#0066CC'><FONT size = 3> 1.3 Régles d'affectations </FONT></FONT>
 
 * Pour chaque individus de la base, on calcule la probabilité d'appartenance $P({C_k}/{X_n})$ à TOUS les groupe k. l'affectation à un groupe sera :
 <center>
@@ -138,31 +131,37 @@ La probabilité d'appartenance est la suivante :
 * Sachant que $P({X_1} = {x_1},{X_2} = {x_2},...,{X_n} = {x_n}) = \prod\limits_{p = 1}^n {P({X_p})}$ est, pour un individu, **une constante**, elle n'intervient pas dans le calcul du maximum de
 vraisemblance à postériori. La fonction précédente peut donc être simplifiée :
 
-<center>
- \[{h_{map}} = \arg {\max _k}\left( {P({C_k})\prod\limits_{p = 1}^n {P({X_p}/{C_k})} } \right)\]
-</center>
+$$
+h_{\mathrm{MAP}}=\arg\max_k\left(P(C_k)\prod_{p=1}^{n}P(X_p\mid C_k)\right)
+$$
 
 
-##### <FONT color='#000033'><FONT size = 3> 1.4 Corrections </FONT></FONT>
+
+##### <FONT color='#0066CC'><FONT size = 3> 1.4 Corrections </FONT></FONT>
 
 
 * Pour éviter d'obtenir des probabilités conditionnelles nulles ${P({X_p}/{C_k})}$ (Vraisemblance), on utilise aussi un facteur correctif.
 Soit ${n_x}$ le nombre d'observations $X = {x_i}$ d'une variable X (nombre de modalités = ${x_i}$ pour une variable), ${n_{ki}}$ le nombre d'observations appartenant à *k* pour la modalité ${x_i}$ de X, le facteur correctif est le suivant:
 
-<center>
-\[P({X_p}/{C_k}) = \frac{{{n_{ki}} + m}}{{{n_k} + mk}}\]
-</center>
+$$
+P(X_p \mid C_k)=\frac{n_{ki}+m}{n_k+m\,k}
+$$
+
 
 Pour rappel ;
 
 * *k* est le nombre de facteur de la variable à prédire 
 * *m* est la facteur correctif de Laplace
 
-##### <FONT color='#000033'><FONT size = 3> 1.5 Tranformation logarithmique  </FONT></FONT>
+##### <FONT color='#0066CC'><FONT size = 3> 1.5 Tranformation logarithmique  </FONT></FONT>
 
 * La fonction hmap est passée en logarithme tel que :
 
-\[{h_{map}} = \arg {\max _k}\left( {\ln \left( {P({C_k})} \right) + \sum\limits_{p = 1}^n {\ln \left( {P({X_p}/{C_k})} \right)} } \right)\]
+$$
+h_{\mathrm{MAP}}
+=\arg\max_k\left(\ln P(C_k)+\sum_{p=1}^{n}\ln P(X_p\mid C_k)\right)
+$$
+
 
 
 D'un point de vue calculatoire, le produit de nombreuses probabilités (toutes bien évidemment inférieures à 1 !)  peut rapidement provoquer des débordements de mémoire. le passage en log permet d'éviter ce problème
@@ -170,7 +169,7 @@ D'un point de vue calculatoire, le produit de nombreuses probabilités (toutes b
 <br>
 <hr style="border: 1px  solid gray">
 
-### <FONT color='#000033'><FONT size = 3> 2. PROGRAMMATION </FONT> 
+### <FONT color='#0066CC' size = 3> 2. PROGRAMMATION </FONT> 
 
 
 Nous allons procéder en deux étapes    
@@ -242,18 +241,19 @@ data.frame(Y = Y) %>% kbl(digits=3) %>%
 ```
 <hr>
 
-##### <FONT color='#000033'><FONT size = 3> 2.1 Probabilité conditionnelle </FONT></FONT>
+##### <FONT color='#0066CC'><FONT size = 3> 2.1 Probabilité conditionnelle </FONT></FONT>
 
-###### <FONT color='#000033'><FONT size =3> 2.1.1 Tableau de contingence </FONT> </FONT> 
+###### <FONT color='#0066CC'><FONT size =3> 2.1.1 Tableau de contingence </FONT> </FONT> 
 
 Dans un premier temp Nous cherchons ici à créer les tableaux de contingence entre les différentes variables du prédicteur et la variable à prédire. 
 Nous créons ainsi 3 tableaux. A titre d'exemple, le tableau de contingence *contrôle* x *salaire* est le suivant: 
 
 
 
-<center> 
-     ![](Salaire.jpg){#id .class width="50%" height="50%"} 
-</center>
+<div style="text-align: center;">
+  <img src="Salaire.jpg" alt="Salaire" style="width: 50%; height: auto;" />
+</div>
+
 
 <br>
      
@@ -275,7 +275,7 @@ contingence<- lapply(X, function(x){
 contingence
 ```
 
-###### <FONT color='#000033'><FONT size =3> 2.1.2 Probabilités conditionnelles corrigées </FONT> </FONT> 
+###### <FONT color='#0066CC'><FONT size =3> 2.1.2 Probabilités conditionnelles corrigées </FONT> </FONT> 
 
 - Pour palier au problème conditionnelle nulle, on corrige le tableau de contingence en ajoutant à toutes les valeurs la quantité m (par défaut = 1) 
 
@@ -317,27 +317,29 @@ prob_cond
 ```
 
 
-##### <FONT color='#000033'> <FONT size = 3> 2.2 Prédiction et Vraisemblance </FONT></FONT>
+##### <FONT color='#0066CC'> <FONT size = 3> 2.2 Prédiction et Vraisemblance </FONT></FONT>
 - Une fois les probabilités conditionnelles calculées, nous pouvons réaliser une prédiction sur un jeux de données test. 
 Pour y parvenir :
 - Nous cherchons à déterminer, pour chaque individus test, quelles sont les probabilités d'appartenances aux groupes (contrôle = Oui - contrôle = Non) connaissant les valeurs des variables prédictives.
 - L'affectation à un groupe (contrôle = Oui - contrôle = Non) s'effectue en sélectionnant la probabilité max.
 
 Nous devons calculer, pour chaque individus test, la probabilités à postériori (eq. max de vraisemblance a posteriori) :
-<center>
-\[\begin{gathered}
-  P({C_{k = Oui}}/{X_p}) = P({C_k})\prod\limits_{p = 1}^n {P({X_p}/{C_{k = Oui}})}  \hfill \\
-  P({C_{k = Non}}/{X_p}) = P({C_k})\prod\limits_{p = 1}^n {P({X_p}/{C_{k = Non}})}  \hfill \\ 
-\end{gathered} \]
-</center>
+$$
+\begin{aligned}
+P(C_{k=\text{Oui}} \mid X_p) &= P(C_{k=\text{Oui}})\prod_{p=1}^{n} P(X_p \mid C_{k=\text{Oui}}) \\
+P(C_{k=\text{Non}} \mid X_p) &= P(C_{k=\text{Non}})\prod_{p=1}^{n} P(X_p \mid C_{k=\text{Non}})
+\end{aligned}
+$$
+
 
 Pour éviter les problèmes de débordement de capacité mémoire nous calculerons  directement les log de la vraisemblance à postériori
-<center>
-\[\begin{gathered}
-  \ln \left( {({C_{k = Oui}}/{X_p})} \right) = \ln \left( {P({C_k})} \right) + \sum\limits_{p = 1}^n {\ln \left( {P({X_p}/{C_{k = Oui}})} \right)}  \hfill \\
-  \ln \left( {({C_{k = Non}}/{X_p})} \right) = \ln \left( {P({C_k})} \right) + \sum\limits_{p = 1}^n {\ln \left( {P({X_p}/{C_{k = Non}})} \right)}  \hfill \\ 
-\end{gathered} \]
-</center>
+$$
+\begin{aligned}
+\ln P(C_{k=\text{Oui}} \mid X_p) &= \ln P(C_{k=\text{Oui}}) + \sum_{p=1}^{n}\ln P(X_p \mid C_{k=\text{Oui}}) \\
+\ln P(C_{k=\text{Non}} \mid X_p) &= \ln P(C_{k=\text{Non}}) + \sum_{p=1}^{n}\ln P(X_p \mid C_{k=\text{Non}})
+\end{aligned}
+$$
+
 
 Le jeu des données test est le suivant (*data_test*) :
 
@@ -356,7 +358,7 @@ data_test %>% kbl(digits=3) %>%
        scroll_box( height = "250px")
 ```
 
-###### <FONT color='#000033'><FONT size = 3>  2.2.1 Appartenance *a priori* </FONT></FONT>
+###### <FONT color='#0066CC' size = 3>  2.2.1 Appartenance *a priori* </FONT>
 
 La probabilité d'appartenance à priori correspond à la probabilité qu'un individus ait un contrôle ou non. Elle est calculée à partir des données entraînement.  Les résultats sont stockés dans un vecteur *priori*. De plus, on stocke le "nom" des catégories dans un vecteur(ici il s'agit simplement de 'Oui' et 'Non')
 
@@ -459,11 +461,11 @@ resulTest%>% kbl(digits=4) %>%
 <br>
 <hr style="border: 1px  solid gray">
 
-### <FONT color='#000033'><FONT size = 3> 3. FONCTIONS </FONT> 
+### <FONT color='#0066CC' size = 3> 3. FONCTIONS </FONT> 
                
 Une fois les scripts validés, Nous allons écrire deux fonctions génériques qui nous permettront de réutiliser le code indépendamment du nombre de variables et du nombre de catégories (labels).
 
-#### <FONT color='#000033'><FONT size = 3> 3.1 Naive_Bayes </FONT> 
+#### <FONT color='#0066CC' size = 3> 3.1 Naive_Bayes </FONT> 
 
 La première fonction que nous appelerons *Naive_Bayes* declarée comme suit :
 
@@ -510,7 +512,7 @@ print(model)
 ```
 <br>
 
-#### <FONT color='#000033'><FONT size = 3> 3.2 Prédiction </FONT> 
+#### <FONT color='#0066CC' size = 3> 3.2 Prédiction </FONT> 
 
 Pour réaliser la prédiction, nous créons une fonction *Predict_Bay* qui retournera les prédictions (log_Vraiseemblance) et l'affectation sous forme de DataFrame. Cette fonction aura deux arguments: 
 
@@ -578,10 +580,10 @@ out_pred %>% kbl(digits=4) %>%
 <br>
 <hr style="border: 1px  solid gray">
 
-### <FONT color='#000033'><FONT size = 3> 4. DEPLOIEMENT </FONT>
+### <FONT color='#0066CC' size = 3> 4. DEPLOIEMENT </FONT>
 
 
-#### <FONT color='#000033'><FONT size = 3> 4.1 Scripts </FONT>
+#### <FONT color='#0066CC' size = 3> 4.1 Scripts </FONT>
 
 Nous allons utiliser nos fonctions sur une jeu de données en situation réelle. **L'objectif n'est pas d'évaluer la qualité du classifieur** mais de comparer les résultats obtenus à l'aide de vos scripts avec ceux programmés dans un paquet de référence R :*e1071* qui est très utilisé en R. **Il n'est pas non plus question dans le cadre de cours de réaliser une technique d'apprentissage**
 
@@ -613,7 +615,7 @@ print(out_pred$pred, obs)
 ```
 
 
-#### <FONT color='#000033'><FONT size = 3> 4.2 Fonctions R </FONT>
+#### <FONT color='#0066CC' size = 3> 4.2 Fonctions R </FONT>
 
 Nous utilisons maintenant la fonction NaivesBaye du paquet e1071
 

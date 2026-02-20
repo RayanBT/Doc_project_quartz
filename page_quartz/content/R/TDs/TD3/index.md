@@ -2,8 +2,9 @@
 title: "TD3"
 ---
 
-Document fourni en HTML.
+<!-- AUTO-GENERATED: html-link-wrapper -->
 
-- [Ouvrir index.html](./index.html)
+Document rendu en HTML.
 
-<iframe src="./index.html" style="width:100%;min-height:85vh;border:1px solid #ddd;border-radius:8px;" loading="lazy"></iframe>
+- [Ouvrir la version HTML (index.html)](./index.html)
+

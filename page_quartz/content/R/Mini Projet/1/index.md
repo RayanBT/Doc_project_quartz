@@ -1,5 +1,5 @@
 ---
-title: "<FONT color='#0066CC'><FONT size = 6 ><div align= center> MiniProjet 1 : Classification bayésienne </div></FONT></FONT>"
+title: "MiniProjet 1"
 output:
   html_document:
     highlight: textmate
@@ -15,16 +15,16 @@ body, td {font-size: 15px;}
 code.r{font-size: 5px;}
 pre { font-size: 12px;}
 </style>
-
+# Classification bayésienne
 ```r
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 <FONT color='#0066CC'><FONT size = 4 >
 
-::: {align="center"}
-Fouille de données avec R pour la data science et l'intelligence artificielle
-:::
+
+**Fouille de données avec R pour la data science et l'intelligence artificielle**
+
 
 </FONT></FONT>
 

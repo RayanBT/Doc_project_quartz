@@ -1,5 +1,5 @@
 ﻿---
-title: "Projet 2 - Analyse factorielle discriminante (AFD) sur tweets"
+title: "MiniProjet 2"
 output:
   html_document:
     theme: readable
@@ -28,7 +28,7 @@ pre, code { font-size: 12px; }
   margin: 8px 0 14px 0;
 }
 </style>
-
+# Analyse factorielle discriminante (AFD) sur tweets
 ```r
 knitr::opts_chunk$set(
   echo = TRUE,
@@ -366,9 +366,8 @@ dataset_overview <- tibble(
 knitr::kable(dataset_overview)
 ```
 
-<div class="note-box">
 Mode de séparation utilisé: <strong>`r split_mode`</strong>
-</div>
+
 
 ## Prétraitement détaillé
 
